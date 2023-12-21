@@ -1,0 +1,5 @@
+{
+  "require": {
+    "willdurand/hateoas-bundle": "^2.6"
+  }
+}
