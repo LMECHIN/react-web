@@ -1,0 +1,10 @@
+/* User.css */
+
+.container {
+  max-width: 50vh;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  justify-content: center;
+}

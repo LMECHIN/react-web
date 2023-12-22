@@ -16,12 +16,12 @@ export const ApiUser = async () => {
 
     if (!response.ok) {
       if (response.status === 401) {
-        console.log(localStorage.getItem('token'));
-        console.error("Unauthorized - Invalid Token");
+        console.log(localStorage.getItem('token'))
+        console.error('Unauthorized - Invalid Token')
       } else {
-        console.error("Request failed with status:", response.status);
+        console.error('Request failed with status:', response.status)
       }
-      throw new Error();
+      throw new Error()
     }
 
     const userData = await response.json()
@@ -32,7 +32,7 @@ export const ApiUser = async () => {
     console.log(username)
     return { username, email }
   } catch (error) {
-    console.log("salut")
+    console.log('salut')
     console.error('Invalid Input')
     throw error
   }
