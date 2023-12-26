@@ -5,6 +5,8 @@ import './Register.css'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import Stack from '@mui/material/Stack'
+import MyAlert from '../lib/my_alert'
+import ConnectionStatusAlert from '../lib/my_connection_status'
 
 const Register: React.FC = () => {
   const [username, setUsername] = useState<string>('')
@@ -21,10 +23,15 @@ const Register: React.FC = () => {
     navigate('/')
   }
 
+  const handleCloseAlert = () => {
+    setError('')
+  }
+
   return (
     <div className='container'>
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
       <Stack spacing={4}>
+        <ConnectionStatusAlert onClose={() => {}} />
+        <MyAlert errorMessage={errorMessage} onClose={handleCloseAlert} />
         <Stack direction='row' spacing={2}>
           <TextField
             label='Username'
@@ -33,6 +40,7 @@ const Register: React.FC = () => {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
+            sx={{ width: '100%' }}
           />
         </Stack>
         <Stack direction='row' spacing={2}>
@@ -43,6 +51,7 @@ const Register: React.FC = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
+            sx={{ width: '100%' }}
           />
         </Stack>
         <Stack direction='row' spacing={2}>
@@ -54,6 +63,7 @@ const Register: React.FC = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+            sx={{ width: '100%' }}
           />
         </Stack>
         <Stack direction='row' spacing={2}>

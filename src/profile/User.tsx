@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, forwardRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './User.css'
 import ApiUser from './ApiUser'
@@ -6,9 +6,10 @@ import ApiEditUser from './ApiEditUser'
 import ApiLogout from '../Auth/ApiLogout'
 import ApiDelete from '../Auth/ApiDelete'
 import { Box } from '@mui/system'
-import Button from '@mui/material/Button'
-import Stack from '@mui/material/Stack'
-import TextField from '@mui/material/TextField'
+import MyAlert from '../lib/my_alert'
+import { Stack, TextField, Button } from '@mui/material'
+import { MySnackbar } from '../lib/my_snackbar'
+import ConnectionStatusAlert from '../lib/my_connection_status'
 
 const User: React.FC = () => {
   const [userData, setUserData] = useState({ username: '', email: '' })
@@ -16,7 +17,10 @@ const User: React.FC = () => {
   const [newEmail, setNewEmail] = useState<string>('')
   const [newPassword, setNewPassword] = useState<string>('')
   const [errorMessage, setError] = useState<string>('')
+  const [successMessage, setSuccess] = useState<string>('')
+  const [boxSize, setBoxSize] = useState({ width: 500, height: 500 })
   const [isEditing, setIsEditing] = useState(false)
+  const [open, setOpen] = useState(false)
   const [userIsEditing, setUserIsEditing] = useState(false)
   const navigate = useNavigate()
 
@@ -44,8 +48,25 @@ const User: React.FC = () => {
     setUserIsEditing(!userIsEditing)
   }
 
+  const handleCloseAlert = () => {
+    setError('')
+    setBoxSize({
+      width: 500,
+      height: 500,
+    })
+  }
+
   const handleApiEditUserClick = async () => {
     const token = localStorage.getItem('token')
+
+    if (!newUsername || !newEmail || !newPassword) {
+      setError('Please fill in all the required fields.')
+      setBoxSize({
+        width: 500,
+        height: 600,
+      })
+      return
+    }
     if (token) {
       try {
         await ApiEditUser(newUsername, newEmail, newPassword, token, setError)
@@ -60,6 +81,8 @@ const User: React.FC = () => {
         }
         setUserData(updatedUserData)
         setUserIsEditing(!userIsEditing)
+        setSuccess('User informations is updated')
+        setOpen(true)
       } catch (error) {
         console.error('Error editing user', error)
       }
@@ -73,6 +96,17 @@ const User: React.FC = () => {
     }
   }
 
+  const handleSnack = (
+    event?: React.SyntheticEvent | Event,
+    reason?: string,
+  ) => {
+    if (reason === 'clickaway') {
+      return
+    }
+    setOpen(false)
+    setSuccess('')
+  }
+
   const handleDelete = async () => {
     const confirmation = window.confirm(
       'Are you sure you want to delete your account?',
@@ -84,7 +118,6 @@ const User: React.FC = () => {
         await ApiDelete(token, navigate, setError)
       }
     } else {
-      // L'utilisateur a annulé la suppression
       console.log('Deletion canceled')
     }
   }
@@ -95,15 +128,16 @@ const User: React.FC = () => {
 
   return (
     <div className='container'>
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+      <ConnectionStatusAlert onClose={() => {}} />
       <Box
         sx={{
-          width: 500,
-          height: 500,
+          width: boxSize.width,
+          height: boxSize.height,
           borderRadius: 10,
           margin: 'auto',
           overflow: 'hidden',
-          transition: 'box-shadow 0.3s, transform 0.3s',
+          transition:
+            'box-shadow 0.3s, transform 0.3s, width 0.6s, height 0.6s',
           transform:
             isEditing && !userIsEditing ? 'rotate(180deg)' : 'rotate(0deg)',
           '&:hover': {
@@ -118,6 +152,7 @@ const User: React.FC = () => {
       >
         {userIsEditing ? (
           <Stack spacing={2} marginTop='10%' marginBottom={'5%'}>
+            <MyAlert errorMessage={errorMessage} onClose={handleCloseAlert} />
             <Stack direction='row' spacing={2} alignSelf='center'>
               <Button
                 onClick={handleEditUserClick}
@@ -139,12 +174,14 @@ const User: React.FC = () => {
               variant='outlined'
               value={newUsername}
               onChange={(e) => setNewUsername(e.target.value)}
+              required
             />
             <TextField
               label='Email'
               variant='outlined'
               value={newEmail}
               onChange={(e) => setNewEmail(e.target.value)}
+              required
             />
             <TextField
               label='Password'
@@ -153,6 +190,7 @@ const User: React.FC = () => {
               variant='outlined'
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
+              required
             />
           </Stack>
         ) : (
@@ -230,13 +268,18 @@ const User: React.FC = () => {
         </Box>
       </Box>
       <Stack spacing={2} direction='row'>
-        <Button onClick={handleLogout} variant='contained' color='error'>
-          Logout
-        </Button>
+        <>
+          <Button onClick={handleLogout} variant='contained' color='error'>
+            Logout
+          </Button>
+        </>
         <Button onClick={handleDelete} variant='contained' color='error'>
           Delete
         </Button>
       </Stack>
+      <MySnackbar open={open} onClose={handleSnack}>
+        {successMessage}
+      </MySnackbar>
     </div>
   )
 }

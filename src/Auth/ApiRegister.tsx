@@ -31,7 +31,7 @@ const ApiRegister = async (
 
     localStorage.setItem('token', json.token)
     console.log('Connect')
-    navigate('/home')
+    navigate('/home', { state: { successMessage: 'Register was successful' } })
   } catch (error) {
     console.error('Login failed', 'Invalid email or password', error)
     setError('Invalid email or password')
