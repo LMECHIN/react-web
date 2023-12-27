@@ -26,11 +26,12 @@ export const ApiUser = async () => {
 
     const userData = await response.json()
     console.log(userData)
-    const { username, email } = userData
+    const { username, email, password } = userData
     console.log(token)
     console.log(email)
     console.log(username)
-    return { username, email }
+    console.log(password)
+    return { username, email, password }
   } catch (error) {
     console.log('salut')
     console.error('Invalid Input')

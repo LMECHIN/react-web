@@ -11,8 +11,18 @@ import { Stack, TextField, Button } from '@mui/material'
 import { MySnackbar } from '../lib/my_snackbar'
 import ConnectionStatusAlert from '../lib/my_connection_status'
 
+interface UserData {
+  username: string
+  email: string
+  password: string
+}
+
 const User: React.FC = () => {
-  const [userData, setUserData] = useState({ username: '', email: '' })
+  const [userData, setUserData] = useState<UserData>({
+    username: '',
+    email: '',
+    password: '',
+  })
   const [newUsername, setNewUsername] = useState<string>('')
   const [newEmail, setNewEmail] = useState<string>('')
   const [newPassword, setNewPassword] = useState<string>('')
@@ -46,6 +56,11 @@ const User: React.FC = () => {
 
   const handleEditUserClick = () => {
     setUserIsEditing(!userIsEditing)
+    setError('')
+    setBoxSize({
+      width: 500,
+      height: 500,
+    })
   }
 
   const handleCloseAlert = () => {
@@ -72,12 +87,17 @@ const User: React.FC = () => {
         await ApiEditUser(newUsername, newEmail, newPassword, token, setError)
         localStorage.setItem(
           'userData',
-          JSON.stringify({ username: newUsername, email: newEmail }),
+          JSON.stringify({
+            username: newUsername,
+            email: newEmail,
+            password: newPassword,
+          }),
         )
         const updatedUserData = {
           ...userData,
           username: newUsername,
           email: newEmail,
+          password: newPassword,
         }
         setUserData(updatedUserData)
         setUserIsEditing(!userIsEditing)
@@ -229,39 +249,29 @@ const User: React.FC = () => {
             </Button>
           ) : (
             <>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: '10px',
-                }}
-              >
+              <div className='profile-container-title'>
                 <img
+                  className='profile-image-title'
                   src={`${process.env.PUBLIC_URL}/profil.png`}
                   alt='Avatar'
-                  style={{
-                    width: '40px',
-                    height: '40px',
-                    marginRight: '10px',
-                    borderRadius: '50%',
-                  }}
                 />
-                <p
-                  style={{
-                    fontSize: '48px',
-                    margin: 10,
-                  }}
-                >
-                  {userData.username}
-                </p>
+                <p className='profile-text-title'>{userData.username}</p>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center' }}>
+              <div className='profile-container'>
                 <img
+                  className='profile-image'
                   src={`${process.env.PUBLIC_URL}/email.png`}
                   alt='Email Icon'
-                  style={{ width: '30px', height: '30px', marginRight: '10px' }}
                 />
-                <p>{userData.email}</p>
+                <p className='profile-text'>{userData.email}</p>
+              </div>
+              <div className='profile-container'>
+                <img
+                  className='profile-image'
+                  src={`${process.env.PUBLIC_URL}/password.png`}
+                  alt='Password Icon'
+                />
+                <p className='profile-text'>{userData.password.replace(/./g, '*')}</p>
               </div>
             </>
           )}
