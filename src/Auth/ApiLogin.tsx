@@ -27,7 +27,7 @@ const ApiLogin = async (
     localStorage.setItem('token', json.token)
     console.log(json.token)
     console.log('Connect')
-    navigate('/profile')
+    navigate('/home', { state: { successMessage: 'Login was successful' } })
   } catch (error) {
     console.error('Login failed', 'Invalid email or password', error)
     setError('Invalid email or password')

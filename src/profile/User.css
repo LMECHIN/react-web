@@ -13,7 +13,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: '5px',
+  margin-bottom: '5px';
 }
 
 .profile-image-title {
@@ -25,7 +25,7 @@
 
 .profile-text-title {
   font-size: 48px;
-  margin: 10px;
+  margin: 4%;
 }
 
 .profile-container {
@@ -34,13 +34,24 @@
   justify-content: center;
 }
 
-.profile-image {
+.profile-image-email {
   width: 30px;
   height: 30px;
   margin-right: 10px;
 }
 
-.profile-text {
+.profile-text-email {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.profile-image-password {
+  width: 30px;
+  height: 30px;
+  margin-right: 10px;
+}
+
+.profile-text-password {
   margin-top: 0;
   margin-bottom: 0;
 }

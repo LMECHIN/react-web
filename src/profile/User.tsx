@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './User.css'
 import ApiUser from './ApiUser'
@@ -9,6 +9,7 @@ import { Box } from '@mui/system'
 import MyAlert from '../lib/my_alert'
 import { Stack, TextField, Button } from '@mui/material'
 import { MySnackbar } from '../lib/my_snackbar'
+import MyAppbar from '../lib/app_bar'
 import ConnectionStatusAlert from '../lib/my_connection_status'
 
 interface UserData {
@@ -148,6 +149,7 @@ const User: React.FC = () => {
 
   return (
     <div className='container'>
+      <MyAppbar />
       <ConnectionStatusAlert onClose={() => {}} />
       <Box
         sx={{
@@ -161,7 +163,7 @@ const User: React.FC = () => {
           transform:
             isEditing && !userIsEditing ? 'rotate(180deg)' : 'rotate(0deg)',
           '&:hover': {
-            boxShadow: '0 4px 50px rgba(40, 0, 130, 0.8)',
+            boxShadow: '0 4px 25px rgba(0, 0, 0, 0.8588)',
             transform:
               isEditing && !userIsEditing
                 ? 'scale(1.1) rotate(180deg)'
@@ -220,6 +222,7 @@ const User: React.FC = () => {
               height: '70%',
               backgroundImage: `url(${process.env.PUBLIC_URL}/violet.png)`,
               backgroundSize: 'cover',
+              backgroundPositionY: '10%',
             }}
           />
         )}
@@ -227,7 +230,7 @@ const User: React.FC = () => {
           sx={{
             width: '100%',
             height: '70%',
-            bgcolor: '#4B0082',
+            bgcolor: '#000000DB',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -259,19 +262,21 @@ const User: React.FC = () => {
               </div>
               <div className='profile-container'>
                 <img
-                  className='profile-image'
+                  className='profile-image-email'
                   src={`${process.env.PUBLIC_URL}/email.png`}
                   alt='Email Icon'
                 />
-                <p className='profile-text'>{userData.email}</p>
+                <p className='profile-text-email'>{userData.email}</p>
               </div>
               <div className='profile-container'>
                 <img
-                  className='profile-image'
+                  className='profile-image-password'
                   src={`${process.env.PUBLIC_URL}/password.png`}
                   alt='Password Icon'
                 />
-                <p className='profile-text'>{userData.password.replace(/./g, '*')}</p>
+                <p className='profile-text-password'>
+                  {userData.password.replace(/./g, '*')}
+                </p>
               </div>
             </>
           )}
