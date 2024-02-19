@@ -1,7 +1,7 @@
 import Login from './../Auth/Login'
 import Register from './../Auth/Register'
 import User from './../profile/User'
-import Home from './../home/Home'
+import Home from '../home/Home'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 
 const MyRoutes: React.FC = () => {
