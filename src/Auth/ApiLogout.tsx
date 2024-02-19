@@ -20,6 +20,8 @@ const ApiLogout = async (
     console.log('Logout successful')
     localStorage.removeItem('token')
     localStorage.removeItem('userData')
+    localStorage.removeItem('taskData')
+    localStorage.removeItem('statusesOrder')
     localStorage.removeItem('boxPosition')
     navigate('/', { state: { successMessage: 'Logout was successful' } })
   } catch (error) {

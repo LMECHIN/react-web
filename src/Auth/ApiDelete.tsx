@@ -20,6 +20,7 @@ const ApiLogout = async (
     console.log('Delete successful')
     localStorage.removeItem('token')
     localStorage.removeItem('userData')
+    localStorage.removeItem('taskData')
     navigate('/', { state: { successMessage: 'Delete user was successful' } })
   } catch (error) {
     console.error('Delete failed', error)

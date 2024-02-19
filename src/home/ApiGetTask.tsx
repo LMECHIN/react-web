@@ -1,4 +1,4 @@
-export const ApiUser = async () => {
+export const ApiGetTask = async () => {
   const token = localStorage.getItem('token')
 
   try {
@@ -7,7 +7,7 @@ export const ApiUser = async () => {
       Authorization: `Bearer ${token}`,
     }
 
-    const url = 'http://127.0.0.1:5000/api/get_user'
+    const url = 'http://127.0.0.1:5000/api/get_task'
 
     const response = await fetch(url, {
       method: 'GET',
@@ -24,14 +24,14 @@ export const ApiUser = async () => {
       throw new Error()
     }
 
-    const userData = await response.json()
-    console.log(userData)
-    const { username, email, password } = userData
-    console.log(token)
-    console.log(email)
-    console.log(username)
-    console.log(password)
-    return { username, email, password }
+    const taskData = await response.json()
+    let i = 0
+    while (i < taskData.tasks.length) {
+      console.log(taskData.tasks[i])
+      i += 1
+    }
+    console.log(taskData)
+    return taskData.tasks
   } catch (error) {
     console.log('salut')
     console.error('Invalid Input')
@@ -39,4 +39,4 @@ export const ApiUser = async () => {
   }
 }
 
-export default ApiUser
+export default ApiGetTask

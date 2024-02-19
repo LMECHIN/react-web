@@ -1,1 +1,31 @@
 /* Home.css */
+
+.home-container {
+  position: relative;
+}
+
+.card-title {
+  font-size: 18px;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.task-text-title {
+  font-size: 25px;
+  margin: 4%;
+}
+
+.right-aligned-image {
+  position: absolute;
+  top: 20%;
+  right: 2%;
+  cursor: pointer;
+  transition: transform 0.3s ease-in-out;
+  width: 50px;
+  height: auto;
+}
+
+.right-aligned-image:hover {
+  transform: translate(0%, -50%) scale(1.1);
+}

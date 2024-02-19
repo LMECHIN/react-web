@@ -9,9 +9,8 @@ const rootElement = document.getElementById('root')
 if (rootElement) {
   const root = ReactDOM.createRoot(rootElement)
   root.render(
-    <React.StrictMode>
-      <App />
-    </React.StrictMode>,
+    // Remove the <React.StrictMode> component
+    <App />,
   )
 
   // If you want to start measuring performance in your app, pass a function

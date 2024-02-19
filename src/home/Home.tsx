@@ -1,103 +1,217 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useLocation } from 'react-router-dom';
-import Draggable from 'react-draggable';
-import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { MySnackbar } from '../lib/my_snackbar';
-import MyAppbar from '../lib/app_bar';
+import React, { useRef, useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
+import { MySnackbar } from '../lib/my_snackbar'
+import MyAppbar from '../lib/app_bar'
+import DragAndDrop from '../lib/drag_drop'
+import ConnectionStatusAlert from '../lib/my_connection_status'
+import Box from '@mui/material/Box'
+import TextField from '@mui/material/TextField'
+import './Home.css'
+import Stack from '@mui/material/Stack'
+import ApiGetTask from './ApiGetTask'
+import ApiEditTask from './ApiEditTask'
+
+interface TaskData {
+  task_id: string
+  title: string
+  description: string
+  due_date: string
+  status: string
+  priority: string
+  created_at: string
+  updated_at: string
+}
 
 const Home: React.FC = () => {
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
-  const [successMessage, setSuccess] = useState<string>('');
-  const location = useLocation();
-  const successMessageFromLogout = location.state?.successMessage || '';
+  const [successMessage, setSuccess] = useState<string>('')
+  const [openTools, setOpenTools] = useState(false)
+  const [textFields, setTextFields] = useState<React.ReactElement[]>([])
+  const location = useLocation()
+  const [errorMessage, setError] = useState<string>('')
+  const successMessageFromLogout = location.state?.successMessage || ''
+  const [taskList, setTaskList] = useState<TaskData[]>([])
+  const [statuses, setStatuses] = useState(['To Do', 'In Progress', 'Done'])
+  const dragPerson = useRef<number | null>(null)
 
-  const [boxContent, setBoxContent] = useState('Cette boîte est déplaçable !');
-  const [boxPosition, setBoxPosition] = useState<{ x: number; y: number }>(
-    () => {
-      const storedPosition = localStorage.getItem('boxPosition');
-      const defaultPosition = { x: 0, y: 0 };
+  const handleDragStart = (boxIndex: number) => {
+    dragPerson.current = boxIndex
+  }
 
-      if (storedPosition && storedPosition !== '') {
-        const parsedPosition = JSON.parse(storedPosition);
-        if (
-          typeof parsedPosition === 'object' &&
-          'x' in parsedPosition &&
-          'y' in parsedPosition
-        ) {
-          return parsedPosition;
+  const handleDragEnter = (boxIndex: number) => {
+    if (dragPerson.current !== null && dragPerson.current !== boxIndex) {
+      const updatedTaskList = [...statuses]
+      const draggedTask = updatedTaskList[dragPerson.current]
+      updatedTaskList.splice(dragPerson.current, 1)
+      updatedTaskList.splice(boxIndex, 0, draggedTask)
+
+      setStatuses(updatedTaskList)
+      dragPerson.current = boxIndex
+    }
+  }
+
+  const handleDragEnd = async () => {
+    // const token = localStorage.getItem('token')
+    // if (token) {
+    //   try {
+    //     await ApiEditTask(token, "14", "testtcccc", "other test", "Done", "Medium", setError)
+    //     localStorage.setItem(
+    //       'taskData',
+    //       JSON.stringify({
+    //         task_id: "14",
+    //         title: "testtcccc",
+    //         description: "other test",
+    //         status: "Done",
+    //         priority: "Medium",
+    //       }),
+    //     )
+    //   } catch (error) {
+    //     console.error('Error editing user', error)
+    //   }
+    // }
+    dragPerson.current = null
+  }
+
+  const renderBoxes = () => {
+    const screenHeight = window.innerHeight
+
+    return statuses.map((status, boxIndex) => {
+      const filteredTasks = taskList.filter((task) => task.status === status)
+      console.log(filteredTasks);
+      const boxHeight = 250 + (filteredTasks.length - 1.4) * 150
+
+      return (
+        <div
+          key={boxIndex}
+          draggable
+          onDragStart={() => handleDragStart(boxIndex)}
+          onDragEnter={() => handleDragEnter(boxIndex)}
+          onDragEnd={handleDragEnd}
+          onDragOver={(e) => e.preventDefault()}
+        >
+          <Box
+            key={boxIndex}
+            sx={{
+              width: 250,
+              height: boxHeight,
+              borderRadius: 1,
+              position: 'absolute',
+              top: `${screenHeight / 5}px`,
+              left: `${25 + 25 * boxIndex}%`,
+              transform: 'translate(-50%, 0%)',
+              alignItems: 'center',
+              bgcolor: 'primary.main',
+              '&:hover': {
+                bgcolor: 'primary.dark',
+              },
+            }}
+          >
+            <p className='card-title'>{status}</p>
+            {filteredTasks.map((task, taskIndex) => (
+              <Box
+                sx={{
+                  width: 250,
+                  height: 125,
+                  borderRadius: 1,
+                  position: 'absolute',
+                  top: `${100 + 150 * taskIndex}px`,
+                  left: '50%',
+                  transform: 'translate(-50%, -50%)',
+                  alignItems: 'center',
+                  bgcolor: '#DC143C',
+                  '&:hover': {
+                    bgcolor: '#B22222',
+                  },
+                }}
+              >
+                <p className='task-text-title'>{task.title}</p>
+                <p className='task-text-description'>{task.description}</p>
+                <p className='task-text-priority'>{task.priority}</p>
+                <p className='task-text-priority'>{task.task_id}</p>
+              </Box>
+            ))}
+          </Box>
+        </div>
+      )
+    })
+  }
+
+  const effectApiGetTask = async () => {
+    try {
+      const storedUserData = localStorage.getItem('taskData')
+      console.log('Stored Data:', storedUserData)
+
+      if (storedUserData) {
+        const parsedData = JSON.parse(storedUserData)
+
+        if (Array.isArray(parsedData)) {
+          setTaskList(parsedData)
+        } else {
+          console.error('Stored data is not an array:', parsedData)
         }
+      } else {
+        const data = await ApiGetTask()
+        setTaskList(data)
+        localStorage.setItem('taskData', JSON.stringify(data))
       }
-      return defaultPosition;
-    },
-  );
+    } catch (error) {
+      console.error('Error fetching or parsing task data', error)
+    }
+  }
 
-  const boxRef = useRef(null);
-  const [isBoxHovered, setIsBoxHovered] = useState(false);
+  const handleItemClick = () => {
+    setOpenTools(!openTools)
 
-  const handleContentChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setBoxContent(event.target.value);
-  };
-
-  const handleDragStart = () => {
-    setIsBoxHovered(true);
-  };
-
-  const handleDragStop = (_e: any, data: { x: number; y: number }) => {
-    const newPosition = { x: data.x, y: data.y };
-    setBoxPosition(newPosition);
-    localStorage.setItem('boxPosition', JSON.stringify(newPosition));
-    setIsBoxHovered(false);
-  };
+    setTextFields((prevTextFields) => [
+      ...prevTextFields,
+      <TextField
+        key={prevTextFields.length}
+        label='Your Label'
+        variant='outlined'
+      />,
+    ])
+  }
 
   useEffect(() => {
+    effectApiGetTask()
     if (successMessageFromLogout) {
-      setSuccess(successMessageFromLogout);
+      setSuccess(successMessageFromLogout)
     }
-  }, [successMessageFromLogout]);
+  }, [successMessageFromLogout])
+
+  useEffect(() => {
+    const storedOrder = localStorage.getItem('statusesOrder');
+    if (storedOrder) {
+      setStatuses(JSON.parse(storedOrder));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('statusesOrder', JSON.stringify(statuses));
+  }, [statuses]);
 
   return (
     <div>
       <MyAppbar />
-      <Draggable
-        onStart={handleDragStart}
-        onStop={handleDragStop}
-        position={boxPosition}
-        nodeRef={boxRef}
-      >
-        <Box
-          ref={boxRef}
-          sx={{
-            width: isSmallScreen ? '90vw' : '40vw',
-            height: isSmallScreen ? '30vh' : '40vh',
-            background: '#000000DB',
-            color: 'white',
-            padding: '20px',
-            position: 'absolute',
-            transition: 'box-shadow 0.3s, border 0.1s',
-            boxShadow: isBoxHovered ? '0 4px 25px rgba(0, 0, 0, 0.8588)' : 'none',
-            cursor: 'move',
-            border: isBoxHovered ? '2px solid rgba(255, 255, 255, 1)' : 'none',
-          }}
-        >
-          <TextField
-            fullWidth
-            multiline
-            variant='standard'
-            value={boxContent}
-            onChange={handleContentChange}
-            inputProps={{ style: { color: 'white' } }}
-          />
-        </Box>
-      </Draggable>
+      <ConnectionStatusAlert onClose={() => {}} />
+
+      <img
+        src={`${process.env.PUBLIC_URL}/plus.png`}
+        alt='Logo'
+        className='right-aligned-image'
+        onClick={handleItemClick}
+        onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.1)')}
+        onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+      />
+
+      {textFields}
+
+      {/* <DragAndDrop /> */}
+      <div>{renderBoxes()}</div>
       <MySnackbar open={!!successMessage} onClose={() => setSuccess('')}>
         {successMessage}
       </MySnackbar>
     </div>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home
